@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suivi des exercices - Louis-le-Grand</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #60a5fa;
+      --accent-2: #34d399;
+      --danger: #f87171;
+      --border: rgba(255,255,255,0.10);
+      --shadow: 0 10px 30px rgba(0,0,0,0.25);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 20% 0%, #172554 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 3vw, 2.5rem);
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 1000px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: rgba(17,24,39,0.85);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1.05rem;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .stats {
+      display: grid;
+      gap: 12px;
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .big {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .muted { color: var(--muted); }
+
+    .progress {
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .progress > div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 180ms ease;
+    }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .control-group {
+      display: grid;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    textarea, input[type="text"], select {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      outline: none;
+    }
+
+    textarea:focus, input[type="text"]:focus, select:focus {
+      border-color: rgba(96,165,250,0.8);
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.18);
+    }
+
+    textarea { min-height: 120px; resize: vertical; }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font: inherit;
+      cursor: pointer;
+      transition: transform 100ms ease, background 100ms ease, border-color 100ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.22);
+    }
+
+    button.primary {
+      background: linear-gradient(90deg, rgba(96,165,250,0.95), rgba(52,211,153,0.92));
+      border-color: transparent;
+      color: #081018;
+      font-weight: 700;
+    }
+
+    button.danger {
+      background: rgba(248,113,113,0.12);
+      border-color: rgba(248,113,113,0.28);
+      color: #fecaca;
+    }
+
+    .message {
+      min-height: 1.2em;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 720px) {
+      .toolbar { grid-template-columns: 1fr; }
+    }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+      gap: 8px;
+      max-height: 70vh;
+      overflow: auto;
+      padding-right: 6px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      user-select: none;
+      transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+    }
+
+    .check-item.done {
+      background: linear-gradient(135deg, rgba(96,165,250,0.35), rgba(52,211,153,0.35));
+      border-color: rgba(96,165,250,0.6);
+    }
+
+    .check-item.done span {
+      font-weight: 600;
+    }
+
+    .check-item span {
+      font-size: 0.92rem;
+    }
+
+    .check-item input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+      flex: 0 0 auto;
+    }
+
+    .mini {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .hint {
+      font-size: 0.86rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 560px) {
+      .summary { grid-template-columns: 1fr; }
+    }
+
+    .metric {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+
+    .metric .value {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Traqueur de progression - Poly d’exercices Louis-le-Grand</h1>
+      <p class="subtitle">Coche individuellement les 561 exercices, importe une liste d’exercices faits ou restants, et suis ta progression sans dépendre d’un tableur qui finit toujours en abomination.</p>
+    </header>
+
+    <div class="grid">
+      <aside class="card panel">
+        <h2>Dashboard</h2>
+        <div class="stats">
+          <div class="stat-row">
+            <div>
+              <div class="muted">Progression</div>
+              <div class="big" id="progressText">0 / 561</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="muted">Taux</div>
+              <div class="big" id="percentText">0%</div>
+            </div>
+          </div>
+
+          <div class="progress" aria-label="Progression globale">
+            <div id="progressBar"></div>
+          </div>
+
+          <div class="summary">
+            <div class="metric">
+              <div class="label">Exercices faits</div>
+              <div class="value" id="doneCount">0</div>
+            </div>
+            <div class="metric">
+              <div class="label">Exercices restants</div>
+              <div class="value" id="remainingCount">561</div>
+            </div>
+            <div class="metric">
+              <div class="label">Total</div>
+              <div class="value">561</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label for="importList">Importer une liste</label>
+            <textarea id="importList" placeholder="Exemple :\n1, 2, 5-12, 37\nou\n4 8 9 10"></textarea>
+            <div class="mini">Formats acceptés : nombres, virgules, espaces, retours à la ligne, et intervalles du type 12-18.</div>
+          </div>
+
+          <div class="control-group">
+            <label for="importMode">Interprétation de la liste</label>
+            <select id="importMode">
+              <option value="done">Ce sont les exercices faits</option>
+              <option value="remaining">Ce sont les exercices restants</option>
+            </select>
+          </div>
+
+          <div class="btn-row">
+            <button class="primary" id="applyImportBtn">Appliquer l’import</button>
+            <button id="exportDoneBtn">Exporter les faits</button>
+            <button id="exportRemainingBtn">Exporter les restants</button>
+          </div>
+
+          <div class="btn-row">
+            <button id="selectAllBtn">Tout cocher</button>
+            <button id="clearBtn" class="danger">Tout décocher</button>
+          </div>
+
+          <div class="message" id="message"></div>
+          <div class="hint">La progression est sauvegardée automatiquement dans le navigateur via localStorage. Même les humains finissent par apprécier les choses qui persistent.</div>
+        </div>
+      </aside>
+
+      <main class="card panel">
+        <div class="toolbar">
+          <input type="text" id="searchInput" placeholder="Rechercher un exercice..." aria-label="Rechercher un exercice" />
+          <button id="showOnlyDoneBtn">Voir faits</button>
+          <button id="showAllBtn" class="primary">Voir tout</button>
+        </div>
+
+        <div class="checkbox-grid" id="checkboxGrid" aria-label="Liste des exercices"></div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const TOTAL = 561;
+      const STORAGE_KEY = 'llg-poly-progress-v1';
+
+      const grid = document.getElementById('checkboxGrid');
+      const progressText = document.getElementById('progressText');
+      const percentText = document.getElementById('percentText');
+      const progressBar = document.getElementById('progressBar');
+      const doneCountEl = document.getElementById('doneCount');
+      const remainingCountEl = document.getElementById('remainingCount');
+      const messageEl = document.getElementById('message');
+      const importListEl = document.getElementById('importList');
+      const importModeEl = document.getElementById('importMode');
+      const searchInput = document.getElementById('searchInput');
+      const showOnlyDoneBtn = document.getElementById('showOnlyDoneBtn');
+      const showAllBtn = document.getElementById('showAllBtn');
+
+      const state = {
+        checked: new Set(),
+        filter: 'all',
+        query: ''
+      };
+
+      function save() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([...state.checked]));
+      }
+
+      function load() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr)) {
+            state.checked = new Set(arr.filter(n => Number.isInteger(n) && n >= 1 && n <= TOTAL));
+          }
+        } catch {
+          state.checked = new Set();
+        }
+      }
+
+      function setMessage(text, isError = false) {
+        messageEl.textContent = text;
+        messageEl.style.color = isError ? 'var(--danger)' : 'var(--muted)';
+      }
+
+      function formatPercent(done) {
+        return (done / TOTAL * 100).toFixed(done === TOTAL ? 0 : 1) + '%';
+      }
+
+      function updateDashboard() {
+        const done = state.checked.size;
+        const remaining = TOTAL - done;
+        const pct = done / TOTAL * 100;
+        progressText.textContent = `${done} / ${TOTAL}`;
+        percentText.textContent = formatPercent(done);
+        doneCountEl.textContent = done;
+        remainingCountEl.textContent = remaining;
+        progressBar.style.width = `${pct}%`;
+        save();
+      }
+
+      function createItem(n) {
+        const label = document.createElement('label');
+        label.className = 'check-item';
+        label.dataset.number = String(n);
+
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = state.checked.has(n);
+        if (input.checked) label.classList.add('done');
+
+        input.addEventListener('change', () => {
+          if (input.checked) {
+            state.checked.add(n);
+            label.classList.add('done');
+          } else {
+            state.checked.delete(n);
+            label.classList.remove('done');
+          }
+          updateDashboard();
+          applyVisibility();
+        });
+
+        const span = document.createElement('span');
+        span.textContent = n;
+
+        label.appendChild(input);
+        label.appendChild(span);
+        return label;
+      }
+
+      function renderAll() {
+        grid.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+        for (let i = 1; i <= TOTAL; i++) fragment.appendChild(createItem(i));
+        grid.appendChild(fragment);
+        applyVisibility();
+      }
+
+      function updateCheckboxesFromState() {
+        grid.querySelectorAll('.check-item').forEach(label => {
+          const n = Number(label.dataset.number);
+          const input = label.querySelector('input');
+          const checked = state.checked.has(n);
+          input.checked = checked;
+          label.classList.toggle('done', checked);
+        });
+      }
+
+      function parseList(text) {
+        const nums = new Set();
+        const tokens = text
+          .replace(/\n/g, ' ')
+          .split(/[ ,;\t]+/)
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        for (const token of tokens) {
+          const rangeMatch = token.match(/^(\d+)\s*-\s*(\d+)$/);
+          if (rangeMatch) {
+            let a = Number(rangeMatch[1]);
+            let b = Number(rangeMatch[2]);
+            if (Number.isFinite(a) && Number.isFinite(b)) {
+              if (a > b) [a, b] = [b, a];
+              for (let i = a; i <= b; i++) if (i >= 1 && i <= TOTAL) nums.add(i);
+            }
+            continue;
+          }
+          const value = Number(token);
+          if (Number.isInteger(value) && value >= 1 && value <= TOTAL) nums.add(value);
+        }
+        return nums;
+      }
+
+      function applyImport() {
+        const items = parseList(importListEl.value);
+        const mode = importModeEl.value;
+
+        if (items.size === 0) {
+          setMessage('Aucun exercice valide trouvé dans la liste.', true);
+          return;
+        }
+
+        if (mode === 'done') {
+          items.forEach(n => state.checked.add(n));
+          setMessage(`${items.size} exercice(s) importé(s) comme faits.`);
+        } else {
+          // remaining
+          const next = new Set();
+          for (let i = 1; i <= TOTAL; i++) {
+            if (!items.has(i)) next.add(i);
+          }
+          state.checked = next;
+          setMessage(`${items.size} exercice(s) importé(s) comme restants.`);
+        }
+
+        updateCheckboxesFromState();
+        updateDashboard();
+        applyVisibility();
+      }
+
+      function exportList(onlyDone) {
+        const arr = [];
+        for (let i = 1; i <= TOTAL; i++) {
+          const isDone = state.checked.has(i);
+          if ((onlyDone && isDone) || (!onlyDone && !isDone)) arr.push(i);
+        }
+        importListEl.value = compressRanges(arr);
+        setMessage(`${arr.length} exercice(s) exporté(s) dans la zone de texte.`);
+      }
+
+      function compressRanges(numbers) {
+        if (numbers.length === 0) return '';
+        const ranges = [];
+        let start = numbers[0];
+        let prev = numbers[0];
+        for (let i = 1; i < numbers.length; i++) {
+          const n = numbers[i];
+          if (n === prev + 1) {
+            prev = n;
+          } else {
+            ranges.push(start === prev ? `${start}` : `${start}-${prev}`);
+            start = prev = n;
+          }
+        }
+        ranges.push(start === prev ? `${start}` : `${start}-${prev}`);
+        return ranges.join(', ');
+      }
+
+      function setAll(checked) {
+        state.checked = checked ? new Set(Array.from({ length: TOTAL }, (_, i) => i + 1)) : new Set();
+        updateCheckboxesFromState();
+        updateDashboard();
+        applyVisibility();
+      }
+
+      function applyVisibility() {
+        const q = state.query.trim().toLowerCase();
+        grid.querySelectorAll('.check-item').forEach(label => {
+          const n = Number(label.dataset.number);
+          const isDone = state.checked.has(n);
+          const matchQuery = !q || String(n).includes(q);
+          const matchFilter = state.filter === 'all' || (state.filter === 'done' && isDone);
+          label.style.display = (matchQuery && matchFilter) ? '' : 'none';
+        });
+      }
+
+      document.getElementById('applyImportBtn').addEventListener('click', applyImport);
+      document.getElementById('exportDoneBtn').addEventListener('click', () => exportList(true));
+      document.getElementById('exportRemainingBtn').addEventListener('click', () => exportList(false));
+      document.getElementById('selectAllBtn').addEventListener('click', () => { setAll(true); setMessage('Tous les exercices ont été cochés.'); });
+      document.getElementById('clearBtn').addEventListener('click', () => { setAll(false); setMessage('Toutes les cases ont été décochées.'); });
+
+      showOnlyDoneBtn.addEventListener('click', () => {
+        state.filter = 'done';
+        applyVisibility();
+        setMessage('Affichage filtré sur les exercices faits.');
+      });
+
+      showAllBtn.addEventListener('click', () => {
+        state.filter = 'all';
+        applyVisibility();
+        setMessage('Affichage complet rétabli.');
+      });
+
+      searchInput.addEventListener('input', () => {
+        state.query = searchInput.value;
+        applyVisibility();
+      });
+
+      load();
+      renderAll();
+      updateDashboard();
+      setMessage('Progression chargée.');
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parcoursup - Compte à rebours</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background:
+        radial-gradient(circle at center,
+            rgba(255,80,80,0.15) 0%,
+            rgba(10,10,20,0.95) 45%,
+            #000 100%);
+    color: white;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.background {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+}
+
+.background::before,
+.background::after {
+    content: "";
+    position: absolute;
+    width: 200vmax;
+    height: 200vmax;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background:
+        conic-gradient(
+            transparent,
+            rgba(255,255,255,0.02),
+            transparent,
+            rgba(255,80,80,0.04),
+            transparent
+        );
+    animation: rotate 40s linear infinite;
+}
+
+.background::after {
+    animation-direction: reverse;
+    animation-duration: 60s;
+}
+
+@keyframes rotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.container {
+    text-align: center;
+    z-index: 1;
+    max-width: 900px;
+    padding: 2rem;
+}
+
+h1 {
+    font-size: clamp(2rem, 6vw, 5rem);
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-shadow:
+        0 0 20px rgba(255,255,255,0.3),
+        0 0 60px rgba(255,80,80,0.2);
+}
+
+.subtitle {
+    margin-top: 1rem;
+    color: #bbb;
+    font-size: 1.1rem;
+}
+
+.countdown {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 4rem;
+    flex-wrap: wrap;
+}
+
+.unit {
+    min-width: 140px;
+    padding: 1.5rem;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow:
+        0 0 25px rgba(255,255,255,0.05),
+        inset 0 0 20px rgba(255,255,255,0.03);
+}
+
+.number {
+    font-size: clamp(2rem, 7vw, 4rem);
+    font-weight: bold;
+}
+
+.label {
+    margin-top: 0.5rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.message {
+    margin-top: 3rem;
+    font-size: 1.3rem;
+    color: #ffb3b3;
+    min-height: 2em;
+}
+
+.warning {
+    margin-top: 2rem;
+    color: #888;
+    font-style: italic;
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%,100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.03);
+        opacity: 0.8;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="container">
+
+    <h1 class="pulse">Parcoursup</h1>
+
+    <p class="subtitle">
+        Les résultats approchent inexorablement.
+    </p>
+
+    <div class="countdown">
+        <div class="unit">
+            <div id="hours" class="number">00</div>
+            <div class="label">Heures</div>
+        </div>
+
+        <div class="unit">
+            <div id="minutes" class="number">00</div>
+            <div class="label">Minutes</div>
+        </div>
+
+        <div class="unit">
+            <div id="seconds" class="number">00</div>
+            <div class="label">Secondes</div>
+        </div>
+    </div>
+
+    <div id="message" class="message">
+        Le verdict n'est plus très loin.
+    </div>
+
+    <div class="warning">
+        Respire. Le serveur Parcoursup, lui, ne respirera probablement pas.
+    </div>
+
+</div>
+
+<script>
+function updateCountdown() {
+    const now = new Date();
+
+    const target = new Date();
+    target.setHours(19, 0, 0, 0);
+
+    const diff = target - now;
+
+    if (diff <= 0) {
+        document.getElementById("hours").textContent = "00";
+        document.getElementById("minutes").textContent = "00";
+        document.getElementById("seconds").textContent = "00";
+
+        document.getElementById("message").innerHTML =
+            "🎉 Les résultats sont disponibles. Que les probabilités soient avec toi.";
+        return;
+    }
+
+    const hours = Math.floor(diff / 1000 / 60 / 60);
+    const minutes = Math.floor(diff / 1000 / 60) % 60;
+    const seconds = Math.floor(diff / 1000) % 60;
+
+    document.getElementById("hours").textContent =
+        String(hours).padStart(2, "0");
+
+    document.getElementById("minutes").textContent =
+        String(minutes).padStart(2, "0");
+
+    document.getElementById("seconds").textContent =
+        String(seconds).padStart(2, "0");
+
+    if (hours === 0 && minutes < 30) {
+        document.getElementById("message").textContent =
+            "⚠️ Moins de 30 minutes avant le verdict.";
+    }
+
+    if (hours === 0 && minutes < 10) {
+        document.getElementById("message").textContent =
+            "⚠️ Phase critique. Les nerfs sont désormais une ressource limitée.";
+    }
+
+    if (hours === 0 && minutes < 1) {
+        document.getElementById("message").textContent =
+            "⏳ Dernière minute...";
+    }
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+</script>
+
+</body>
+</html>
